@@ -409,7 +409,7 @@ class Remote(object):
             log.error("EOFError: Socket {:s} connection failed".format(self))
             
         self._closed = False
-        self.newline = '\n'
+        self.newline = b"\n"
     
     def __repr__(self):
         return '<{0} "{1}:{2}" at {3}>'.format(self.__class__.__name__, self.ip, self.port, hex(id(self)))
@@ -523,7 +523,7 @@ class Process(windows.winobject.process.WinProcess):
         self.flags = flags
         self.stdhandles = not nostdhandles
         self.debuggerpath = r'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\windbg.exe'
-        self.newline = b"\n"
+        self.newline = "\n"
         self.__imports = None
         self.__symbols = None
         self.__libs = None
@@ -539,7 +539,7 @@ class Process(windows.winobject.process.WinProcess):
         if self._create_process() != 0:
             raise(ValueError("CreateProcess failed - Invalid arguments"))
         super(Process, self).__init__(pid=self.__pid, handle=self.__phandle)
-        if not (flags & CREATE_SUSPENDED):
+        if flags == CREATE_SUSPENDED:
             self.wait_initialized()
     
     def check_initialized(self):
@@ -649,18 +649,18 @@ class Process(windows.winobject.process.WinProcess):
         
     def sendline(self, line):
         """sendline(line) sends the line adding newline to the process stdin"""
-        self.write(line + self.newline)
+        self.write(line + bytes(self.newline.encode()))
         
     def recv(self, n, timeout = None):
         """recv(n, timeout = None) tries to read n bytes on the process stdout before timeout"""
-        return self.read(n, timeout)
+        return bytes(self.read(n, timeout))
     
     def recvn(self, n, timeout = None):
         """recvn(n, timeout = None) reads exactly n bytes on the process stdout before timeout"""
         buf = self.read(n, timeout)
         if len(buf) != n:
             raise(EOFError("Timeout {:s} - Incomplete read".format(self)))
-        return buf
+        return bytes(buf)
     
     def recvall(self, force_exception = False, timeout = None):
         """recvall(force_exception = False, timeout = None) reads all bytes available on the process stdout before timeout"""
@@ -668,7 +668,7 @@ class Process(windows.winobject.process.WinProcess):
         
     def recvuntil(self, delim, drop = False, timeout = None):
         """recvuntil(delim, drop = False, timeout = None) reads bytes until the delim is present on the process stdout before timeout"""
-        buf = ''
+        buf = b''
         while delim not in buf:
             buf += self.recvn(1, timeout)
         return buf if not drop else buf[:-len(delim)]
@@ -888,3 +888,5 @@ shellcraft.amd64.LoadLibrary = sc_64_LoadLibrary
 shellcraft.amd64.AllocRWX = sc_64_AllocRWX
 """shellcraft.amd64.AllocRWX(addr, rwx_qword) returns str shellcode allocating rwx, writing rwx_qword and jumping on it"""
 
+#p = Process([b"C:/Users/yoshi/Desktop/coucou-printf.exe"], flags=0x0)
+#print(p.recvall())
