@@ -6,7 +6,7 @@ p = Process(b"exemple_rop.exe")
 # p.spawn_debugger(breakin=False)
 
 p.recvuntil(b":")
-p.sendline(bytes(str(500).encode()))
+p.sendline(b"500")
 p.recvuntil(b":")
 p.sendline(b"a"*60)
 

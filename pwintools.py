@@ -523,7 +523,7 @@ class Process(windows.winobject.process.WinProcess):
         self.flags = flags
         self.stdhandles = not nostdhandles
         self.debuggerpath = r'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\windbg.exe'
-        self.newline = "\n"
+        self.newline = b"\n"
         self.__imports = None
         self.__symbols = None
         self.__libs = None
@@ -649,7 +649,7 @@ class Process(windows.winobject.process.WinProcess):
         
     def sendline(self, line):
         """sendline(line) sends the line adding newline to the process stdin"""
-        self.write(line + bytes(self.newline.encode()))
+        self.write(line + self.newline)
         
     def recv(self, n, timeout = None):
         """recv(n, timeout = None) tries to read n bytes on the process stdout before timeout"""
@@ -888,5 +888,5 @@ shellcraft.amd64.LoadLibrary = sc_64_LoadLibrary
 shellcraft.amd64.AllocRWX = sc_64_AllocRWX
 """shellcraft.amd64.AllocRWX(addr, rwx_qword) returns str shellcode allocating rwx, writing rwx_qword and jumping on it"""
 
-#p = Process([b"C:/Users/yoshi/Desktop/coucou-printf.exe"], flags=0x0)
-#print(p.recvall())
+p = Process([b"C:/Users/yoshi/Desktop/coucou-printf.exe"], flags=0x0)
+print(p.recvall())
